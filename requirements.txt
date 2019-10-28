@@ -7,7 +7,7 @@ jupyter-core==4.4.0
 MarkupSafe==1.1.0
 matplotlib==3.0.2
 munkres==1.0.12
-notebook==5.7.2
+notebook==5.7.8
 numpy==1.15.4
 opencv-python==3.4.3.18
 pandas==0.23.4
