@@ -1,0 +1,17 @@
+ConfigArgParse==0.13.0
+h5py==2.8.0
+ipykernel==5.1.0
+ipython==7.1.1
+japanize-matplotlib==1.0.4
+jupyter-core==4.4.0
+MarkupSafe==1.1.0
+matplotlib==3.0.2
+munkres==1.0.12
+notebook==5.7.2
+numpy==1.15.4
+opencv-python==3.4.3.18
+pandas==0.23.4
+Pillow==5.3.0
+progressbar==2.5
+scipy==1.1.0
+sklearn==0.0
