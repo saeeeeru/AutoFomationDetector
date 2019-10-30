@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-import japanize_matplotlib
+# import japanize_matplotlib
 
 from scipy.stats import gaussian_kde, entropy, wasserstein_distance, multivariate_normal
 from munkres import Munkres
@@ -15,7 +15,12 @@ from utils import generate_params, compute_emd, load_model, save_model
 from output_func import draw_pitch, plot_formation_distribution,  plot_formation_transition, plot_mean_formation_distribution
 
 class AutoFormationDetector(object):
-	"""docstring for TrackingAnalysis"""
+	"""docstring for TrackingAnalysis
+	This class for running AutoFormationDetector
+
+	Args:
+		params_dict(dict) : Dictionary of Parameters
+	"""
 	def __init__(self, params_dict):
 		self.__dict__ = params_dict.copy()
 
@@ -75,6 +80,17 @@ class AutoFormationDetector(object):
 		self.n_clusters = 3
 
 	def compute_entropy(self, data_array):
+		"""
+		this module to compute entropy
+
+		Args:
+			data_array(np.ndarray) : dataset of tracking data, shape=(T, n_players, 2)
+
+		Returns:
+			- list of scipy.stats.multivariate_normal object
+			- mean value of each position's KL-Divergence
+			- list of KL-Divergence
+		"""
 
 		x, y = np.mgrid[self.range_dict['xmin']:self.range_dict['xmax']:.01, self.range_dict['ymin']:self.range_dict['ymax']:.01]
 		pos = np.empty(x.shape + (2,))
@@ -98,12 +114,14 @@ class AutoFormationDetector(object):
 
 	def optimize_role_distribution(self, data_array, key=None):
 		"""
-		Parameter
-			- key : name of data
-			- data_array : shape = (T, n_players, 2)
+		this module to optimize role distributions
 
-		Return
-			- rv_list : list of optimized multivaiate_normal objects
+		Args:
+			key : name of data
+			data_array(list) : shape = (T, n_players, 2)
+
+		Returns:
+			- list of optimized multivaiate_normal objects (list)
 		"""
 
 		# initialize gaussian_kde by all time frames
@@ -154,7 +172,12 @@ class AutoFormationDetector(object):
 		return rv_list
 
 	def run(self):
-		
+		"""
+		this module to estimating set of role distribution, 
+		and clustering all set of role distribution to K
+		"""
+
+
 		# optimize role distribution for each data
 		if self.load:
 			print('loading role distribution ...')
@@ -184,27 +207,6 @@ class AutoFormationDetector(object):
 
 		print('Plotting Clustering Results')
 		plot_mean_formation_distribution(self.k_list, self.rv_dict, os.path.join(self.figdir, 'formation_clustering_results'), self.range_dict)
-
-def simulate_online(auto_formation_detector, indir=os.path.join('_csv','ver1'), tau=600):
-	
-	# read data_array_list
-	print('Loading data_array ...')
-	data_dict = {team: np.vstack([np.loadtxt(os.path.join(indir,f'{team}_{auto_formation_detector.name}_{i}.csv'), delimiter=',').reshape(-1,8,2) for i in range(1,3)]) for team in ['a', 'b']}
-
-	# plot role distribution and predicted cluster each teams
-	T = int(len(data_dict[list(data_dict.keys())[0]])/tau)
-	cluster_dict = {key: [] for key in data_dict.keys()}
-
-	for t in range(T):
-		print(f't={t} ...')
-		for key, data_array in data_dict.items():
-			print(f'key={key} ...')
-
-			rv_list = auto_formation_detector.optimize_role_distribution(data_array[t*tau:(t+1)*tau])
-			emd_matrix = compute_emd(list(auto_formation_detector.rv_dict.values())+[rv_list], auto_formation_detector.range_dict)
-			cluster_dict[key].append(auto_formation_detector.k_list[np.argmin(emd_matrix[-1, :-1])])
-
-	plot_formation_transition(cluster_dict, T, os.path.join(auto_formation_detector.figdir, f'formation_transition_{auto_formation_detector.name}.png'))
 
 def main():
 	params_dict = generate_params()
