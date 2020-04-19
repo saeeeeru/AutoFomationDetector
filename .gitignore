@@ -5,3 +5,4 @@ output_possession_tmp.gif
 .DS_Store
 .vscode
 __pycache__/
+docs_dev/

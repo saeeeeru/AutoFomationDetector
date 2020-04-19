@@ -11,7 +11,43 @@ from scipy.stats import gaussian_kde, entropy, wasserstein_distance, multivariat
 
 cmap = plt.get_cmap('tab10')
 
+def simulate_online(auto_formation_detector, indir=os.path.join('_csv','ver1'), tau=600):
+	"""
+	this function to simulate AutoFormationDetector online
+
+	Args:
+		auto_formation_detector (object) : object of automatic_formation_detector class.
+		indir(os.path.join(...)) : path to input file's directory
+		tau(int) : sampling rate[Hz]
+	"""
+	
+	# read data_array_list
+	print('Loading data_array ...')
+	data_dict = {team: np.vstack([np.loadtxt(os.path.join(indir,f'{team}_{auto_formation_detector.name}_{i}.csv'), delimiter=',').reshape(-1,8,2) for i in range(1,3)]) for team in ['a', 'b']}
+
+	# plot role distribution and predicted cluster each teams
+	T = int(len(data_dict[list(data_dict.keys())[0]])/tau)
+	cluster_dict = {key: [] for key in data_dict.keys()}
+
+	for t in range(T):
+		print(f't={t} ...')
+		for key, data_array in data_dict.items():
+			print(f'key={key} ...')
+
+			rv_list = auto_formation_detector.optimize_role_distribution(data_array[t*tau:(t+1)*tau])
+			emd_matrix = compute_emd(list(auto_formation_detector.rv_dict.values())+[rv_list], auto_formation_detector.range_dict)
+			cluster_dict[key].append(auto_formation_detector.k_list[np.argmin(emd_matrix[-1, :-1])])
+
+	plot_formation_transition(cluster_dict, T, os.path.join(auto_formation_detector.figdir, f'formation_transition_{auto_formation_detector.name}.png'))
+
 def draw_pitch():
+	"""
+	this function to draw pitches(vertically)
+
+	Returns:
+		- fig
+		- ax
+	"""
 #     fig, ax = plt.subplots(1, 1, figsize=(15, 13))
 	fig, ax = plt.subplots(1, 1, figsize=(7, 10))
 
@@ -36,6 +72,14 @@ def draw_pitch():
 	return fig, ax
 
 def draw_pitch_rot():
+	"""
+	this function to draw pitches(horizontally)
+	
+	Returns:
+		- fig
+		- ax
+
+	"""
 	fig, ax = plt.subplots(1, 1, figsize=(10, 7))
 
 	plt.gca().spines['right'].set_visible(False)
@@ -59,6 +103,16 @@ def draw_pitch_rot():
 	return fig, ax
 
 def plot_formation_distribution(rv_list, fpath, range_dict):
+	"""
+	this function to plot formation distribution
+
+	Args:
+		rv_list (list): list of each scipy.stats.multivariate_normal object
+		fpath (os.path.join(...)): path to output directory
+		range_dict (dict): dictionary of range parameters
+	"""
+
+
 	x, y = np.mgrid[range_dict['xmin']:range_dict['xmax']:.01, range_dict['ymin']:range_dict['ymax']:.01]
 	pos = np.empty(x.shape + (2,))
 	pos[:, :, 0] = x; pos[:, :, 1] = y
@@ -79,6 +133,15 @@ def plot_formation_distribution(rv_list, fpath, range_dict):
 	plt.close()
 
 def plot_formation_transition(cluster_dict, T, fpath):
+	"""
+	this function to plot formation transition (segmentation bar)
+
+	Args:
+		cluster_dict(dict) : dictionary of each cluster's cutpoints
+		T(int) : number of windows
+		fpath(os.path.join(...)) : path to output dictionary
+
+	"""
 	fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(12, 4))
 
 	for i, (key, cluster_list) in enumerate(cluster_dict.items()):
@@ -94,6 +157,15 @@ def plot_formation_transition(cluster_dict, T, fpath):
 	plt.close()
 
 def plot_mean_formation_distribution(k_list, rv_dict, fpath, range_dict):
+	"""
+	this function to plot mean formation distribution
+
+	Args:
+		k_list(list) : list of number of clusters
+		rv_list(list) : list of each scipy.stats.multivariate_normal object
+		fpath (ois.path.join(...)) : path to output directory
+		range_dict(dict) : dictionary of range parameters
+	"""
 	n_clusters = len(np.unique(k_list))
 	fig, axes = plt.subplots(nrows=1, ncols=n_clusters, figsize=(4*n_clusters, 4*n_clusters/1.91))
 	for k, ax in enumerate(axes):

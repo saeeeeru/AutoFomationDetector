@@ -6,6 +6,12 @@ import pandas as pd
 from scipy.stats import gaussian_kde, entropy, wasserstein_distance, multivariate_normal , zscore
 
 def generate_params():
+	"""
+	this function to generate parameters
+
+	Returns:
+		dictionary of Parameters
+	"""
 	parser = configargparse.ArgParser()
 	parser.add('-dt', '--dt', dest='dt', type=float, default=0.1, help='Time of one frame')
 	parser.add('-i', '--n_iterations', dest='n_iterations', type=int, default=10, help='Number of optimization iteration')
@@ -21,8 +27,14 @@ def generate_params():
 # def compute_emd(kde_list_list, range_dict):
 def compute_emd(rv_list_list, range_dict):
 	"""
-	xx, yy = np.meshgrid(np.arange(range_dict['xmin'], range_dict['xmax'], 0.1), np.arange(range_dict['ymin'], range_dict['ymax'], 0.1))	
-	positions = np.vstack([xx.ravel(), yy.ravel()])
+	this function to compute emd
+	
+	Args:
+		rv_list_list (list of list) : list of set of role distributions
+		range_dict (dict) : dictionary of parameters
+
+	Returns:
+		np.ndarray : emd matrix
 	"""
 
 	x, y = np.mgrid[range_dict['xmin']:range_dict['xmax']:.01, range_dict['ymin']:range_dict['ymax']:.01]
@@ -43,6 +55,17 @@ def compute_emd(rv_list_list, range_dict):
 	return emd_matrix
 
 def load_model(modeldir, n_roles=8):
+	"""
+	this function to load model file
+
+
+	Args:
+		modeldir(os.path.join(...)) : path to saved model directory
+		n_roles(int) : number of positions
+
+	Returns:
+		dict : dictionary of role distribution
+	"""
 	infile_list = os.listdir(modeldir)
 	rv_dict = {}
 	for infile in infile_list:
@@ -61,6 +84,14 @@ def load_model(modeldir, n_roles=8):
 
 
 def save_model(rv_dict, modeldir):
+	"""
+	this function to save model file
+
+	Args:
+		rv_dict(dict) : dictionary of role distribution
+		modeldir(os.path.join(...)) : path to saved model directory
+		
+	"""
 	for k, rv_list in rv_dict.items():
 		with open(os.path.join(modeldir, k), 'w') as fo:
 			for i, rv in enumerate(rv_list):
@@ -82,6 +113,16 @@ def save_model(rv_dict, modeldir):
 
 # split dataframe to {team}_{half}_{number}_{of or df}.csv
 def split_dataframe(infile_path, dt=0.1, threshold_pass=0.5e+7, threshold_distance=2e+3):
+	"""
+	this function to split dataframe to some data sample
+
+	Args:
+		infile_path(os.path.join(...)) : path to infile
+		dt(int) : sampling rate
+		threshold_pass : threshold of pass or not
+		threshold_distance : threshold of distance between player and ball
+
+	"""
 	df = pd.read_csv(infile_path, header=None)
 
 	df.columns = ['sid', 'ts', 'x', 'y', 'z', '|v|', '|a|', 'vx', 'vy', 'vz', 'ax', 'ay', 'az']

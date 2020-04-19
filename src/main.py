@@ -14,8 +14,14 @@ from utils import generate_params, compute_emd, load_model, save_model
 from output_func import draw_pitch, plot_formation_distribution,  plot_formation_transition, plot_mean_formation_distribution
 
 class AutoFormationDetector(object):
-	"""docstring for TrackingAnalysis"""
-	def __init__(self, params_dict, data_dict):
+	"""docstring for TrackingAnalysis
+	This class for running AutoFormationDetector
+
+	Args:
+		params_dict(dict) : Dictionary of Parameters
+		data_dict(dict) : Dictionary of Input Tracking data
+	"""
+	def __init__(self, params_dic, data_dict):
 		self.__dict__ = params_dict.copy()
 		self.data_dict = data_dict
 
@@ -34,6 +40,17 @@ class AutoFormationDetector(object):
 		self.munk = Munkres()
 
 	def compute_entropy(self, data_array):
+		"""
+		this module to compute entropy
+
+		Args:
+			data_array(np.ndarray) : dataset of tracking data, shape=(T, n_players, 2)
+
+		Returns:
+			- list of scipy.stats.multivariate_normal object
+			- mean value of each position's KL-Divergence
+			- list of KL-Divergence
+		"""
 
 		x, y = np.mgrid[self.range_dict['xmin']:self.range_dict['xmax']:.01, self.range_dict['ymin']:self.range_dict['ymax']:.01]
 		pos = np.empty(x.shape + (2,))
@@ -57,12 +74,14 @@ class AutoFormationDetector(object):
 
 	def optimize_role_distribution(self, data_array, key=None):
 		"""
-		Parameter
-			- data_array : shape = (T, n_players, 2)
-			- key : name of data
+		this module to optimize role distributions
 
-		Return
-			- rv_list : list of optimized multivaiate_normal objects
+		Args:
+			key : name of data
+			data_array(list) : shape = (T, n_players, 2)
+
+		Returns:
+			- list of optimized multivaiate_normal objects (list)
 		"""
 
 		# initialize gaussian_kde by all time frames
@@ -110,7 +129,12 @@ class AutoFormationDetector(object):
 		return rv_list
 
 	def run(self):
-		
+		"""
+		this module to estimating set of role distribution, 
+		and clustering all set of role distribution to K
+		"""
+
+
 		# optimize role distribution for each data
 		if self.load:
 			print('loading role distribution ...')
