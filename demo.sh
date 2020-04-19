@@ -6,6 +6,6 @@ echo '-------------------------------'
 # do
 	# python3 main.py -v 2 -n $i -l
 # done
-python3 main.py -v 2 -l
+python3 src/main.py -v 2 -l
 
 echo '-------------------------------'

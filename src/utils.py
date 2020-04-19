@@ -3,8 +3,6 @@ import os, configargparse, time
 import numpy as np
 import pandas as pd
 
-# import japanize_matplotlib
-
 from scipy.stats import gaussian_kde, entropy, wasserstein_distance, multivariate_normal , zscore
 
 def generate_params():
@@ -13,8 +11,9 @@ def generate_params():
 	parser.add('-i', '--n_iterations', dest='n_iterations', type=int, default=10, help='Number of optimization iteration')
 	parser.add('-s', '--select', dest='select', action='store_true', help='Flag of selecting time-window and team')
 	parser.add('-l', '--load', dest='load', action='store_true', help='Flag of loading model')
-	parser.add('-v', '--version', dest='version', type=int, help='Number of dataset version')
+	parser.add('-v', '--version', dest='version', type=int, default=2, help='Number of dataset version')
 	parser.add('-n', '--name', dest='name', type=str, help='Name of Half')
+	parser.add('-k', '--n_clusters', dest='n_clusters', type=int, default=3, help='Number of Clusters')
 	params_dict = vars(parser.parse_args())
 
 	return params_dict
