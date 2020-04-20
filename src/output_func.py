@@ -10,6 +10,7 @@ import matplotlib.patches as patches
 from scipy.stats import gaussian_kde, entropy, wasserstein_distance, multivariate_normal , zscore
 
 cmap = plt.get_cmap('tab10')
+twitter_color = "#141d26"
 
 def simulate_online(auto_formation_detector, indir=os.path.join('_csv','ver1'), tau=600):
 	"""
@@ -102,7 +103,7 @@ def draw_pitch_rot():
 
 	return fig, ax
 
-def plot_formation_distribution(rv_list, fpath, range_dict):
+def plot_formation_distribution(rv_list, fpath, range_dict, mesh_size):
 	"""
 	this function to plot formation distribution
 
@@ -110,26 +111,44 @@ def plot_formation_distribution(rv_list, fpath, range_dict):
 		rv_list (list): list of each scipy.stats.multivariate_normal object
 		fpath (os.path.join(...)): path to output directory
 		range_dict (dict): dictionary of range parameters
+		mesh_size (float): 
 	"""
 
 
-	x, y = np.mgrid[range_dict['xmin']:range_dict['xmax']:.01, range_dict['ymin']:range_dict['ymax']:.01]
+	x, y = np.mgrid[range_dict['xmin']:range_dict['xmax']:mesh_size, range_dict['ymin']:range_dict['ymax']:mesh_size]
 	pos = np.empty(x.shape + (2,))
 	pos[:, :, 0] = x; pos[:, :, 1] = y
 
 	Pn_list = [rv.pdf(pos) for rv in rv_list]
 	P = np.mean(np.array(Pn_list), axis=0)
 
-	fig, ax = plt.subplots(1, 1, figsize=(5, 7))
-	fig.suptitle(fpath.split('/')[-1].replace('.png',''))
+	ratio = (range_dict['ymax']-range_dict['ymin']) / (range_dict['xmax']-range_dict['xmin'])
+	fig, ax = plt.subplots(1, 1, figsize=(10.5*1.5, 6.8*1.5), facecolor=twitter_color)
 
-	ax.set_xlim(range_dict['xmin'], range_dict['xmax'])
-	ax.set_ylim(range_dict['ymin'], range_dict['ymax'])
+	# ax.set_xlim(range_dict['xmin'], range_dict['xmax']); ax.set_ylim(range_dict['ymin'], range_dict['ymax'])
 		
-	for i, Pn in enumerate(Pn_list):
-		ax.contour(x, y, Pn, levels=[0.3], colors=[cmap(i)])
+	for i, (rv, Pn) in enumerate(zip(rv_list, Pn_list)):
+		# add center
+		x_center, y_center = rv.mean
+		ax.scatter(x_center, y_center, s=200, marker='^', facecolors='none', edgecolors=cmap(i))
+		
+		# add density
+		CS = ax.contour(x, y, Pn, levels=np.linspace(np.min(Pn),np.max(Pn),10)[-2:], colors=[cmap(i)])
+		ax.clabel(CS, inline=1, fontsize=10)
 
-	plt.savefig(fpath)
+	# remove axis labels and ticks
+	ax.set_xticklabels([]); ax.set_yticklabels([])
+	ax.set_xticks([]); ax.set_yticks([])
+	
+	ax.set_facecolor(twitter_color)
+
+	ax.set_xlim([-1.5,1.5]); ax.set_ylim([-1.5,1.5])
+
+	# set title
+	ax.set_title(fpath.split('/')[-1].replace('.png',''), color='w')
+	
+	# save figure
+	plt.savefig(fpath, bbox_inches='tight', facecolor=twitter_color)
 	plt.close()
 
 def plot_formation_transition(cluster_dict, T, fpath):
