@@ -103,7 +103,7 @@ def draw_pitch_rot():
 
 	return fig, ax
 
-def plot_formation_distribution(rv_list, fpath, range_dict, mesh_size):
+def plot_formation_distribution(rv_list, fpath, range_dict, mesh_size, atacking_direction):
 	"""
 	this function to plot formation distribution
 
@@ -112,6 +112,7 @@ def plot_formation_distribution(rv_list, fpath, range_dict, mesh_size):
 		fpath (os.path.join(...)): path to output directory
 		range_dict (dict): dictionary of range parameters
 		mesh_size (float): 
+		attacking_direction (str) : in ['left', 'right']
 	"""
 
 
@@ -136,9 +137,21 @@ def plot_formation_distribution(rv_list, fpath, range_dict, mesh_size):
 		CS = ax.contour(x, y, Pn, levels=np.linspace(np.min(Pn),np.max(Pn),10)[-2:], colors=[cmap(i)])
 		ax.clabel(CS, inline=1, fontsize=10)
 
+	# set atacking direction
+	if not attacking_direction:
+		ax.text(0, -1.35, 'attacking', va='bottom', ha='center', fontsize=15, color='w')
+
+	if atacking_direction == 'right':
+		ax.arrow(x=-0.25,y=-1.4,dx=0.5,dy=0,head_width=0.05,head_length=0.05,length_includes_head=True,color='w')
+		ax.text(0, -1.35, 'attacking', va='bottom', ha='center', fontsize=15, color='w')
+	elif attacking_direction == 'left':
+		ax.arrow(x=0.25,y=-1.3,dx=-0.5,dy=0,head_width=0.05,head_length=0.05,length_includes_head=True,color='r')
+
 	# remove axis labels and ticks
 	ax.set_xticklabels([]); ax.set_yticklabels([])
 	ax.set_xticks([]); ax.set_yticks([])
+	ax.spines['right'].set_visible(False); ax.spines['left'].set_visible(False)
+	ax.spines['upper'].set_visible(False); ax.spines['bottom'].set_visible(False)
 	
 	ax.set_facecolor(twitter_color)
 
