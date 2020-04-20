@@ -157,7 +157,8 @@ def plot_formation_distribution(rv_list, fpath, range_dict, mesh_size, attacking
 	ax.set_xlim([-1.5,1.5]); ax.set_ylim([-1.5,1.5])
 
 	# set title
-	ax.set_title(fpath.split('/')[-1].replace('.png',''), color='w')
+	title = fpath.split('/')[-1].replace('.png','') + ' data via @MetricaSports'
+	ax.set_title(title, color='w')
 	
 	# save figure
 	plt.savefig(fpath, bbox_inches='tight', facecolor=twitter_color)
