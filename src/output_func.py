@@ -138,14 +138,13 @@ def plot_formation_distribution(rv_list, fpath, range_dict, mesh_size, attacking
 		ax.clabel(CS, inline=1, fontsize=10)
 
 	# set atacking direction
-	if not attacking_direction:
+	if attacking_direction:
 		ax.text(0, -1.35, 'attacking', va='bottom', ha='center', fontsize=15, color='w')
 
 	if attacking_direction == 'right':
 		ax.arrow(x=-0.25,y=-1.4,dx=0.5,dy=0,head_width=0.05,head_length=0.05,length_includes_head=True,color='w')
-		ax.text(0, -1.35, 'attacking', va='bottom', ha='center', fontsize=15, color='w')
 	elif attacking_direction == 'left':
-		ax.arrow(x=0.25,y=-1.3,dx=-0.5,dy=0,head_width=0.05,head_length=0.05,length_includes_head=True,color='r')
+		ax.arrow(x=0.25,y=-1.3,dx=-0.5,dy=0,head_width=0.05,head_length=0.05,length_includes_head=True,color='w')
 
 	# remove axis labels and ticks
 	ax.set_xticklabels([]); ax.set_yticklabels([])
