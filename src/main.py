@@ -20,21 +20,23 @@ class AutoFormationDetector(object):
 	Args:
 		params_dict(dict) : Dictionary of Parameters
 		data_dict(dict) : Dictionary of Input Tracking data
+		range_dict(dict) : Dictionary of Pitch Range
 	"""
-	def __init__(self, params_dic, data_dict):
+	def __init__(self, params_dict, data_dict, range_dict=None):
 		self.__dict__ = params_dict.copy()
 		self.data_dict = data_dict
 
 		# get range_dict
-		self.range_dict = {'xmin':[], 'xmax':[], 'ymin':[], 'ymax':[]}
-		for k, data_array in self.data_dict.items():
-			xmin, ymin = data_array.reshape(-1, 2).min(axis=0)
-			xmax, ymax = data_array.reshape(-1, 2).max(axis=0)
+		if not range_dict:
+			self.range_dict = {'xmin':[], 'xmax':[], 'ymin':[], 'ymax':[]}
+			for k, data_array in self.data_dict.items():
+				xmin, ymin = data_array.reshape(-1, 2).min(axis=0)
+				xmax, ymax = data_array.reshape(-1, 2).max(axis=0)
 
-			self.range_dict['xmin'].append(xmin); self.range_dict['xmax'].append(xmax)
-			self.range_dict['ymin'].append(ymin); self.range_dict['ymax'].append(ymax)
+				self.range_dict['xmin'].append(xmin); self.range_dict['xmax'].append(xmax)
+				self.range_dict['ymin'].append(ymin); self.range_dict['ymax'].append(ymax)
 
-		self.range_dict = {k:np.min(v) if 'min' in k else np.max(v) for k, v in self.range_dict.items()}
+			self.range_dict = {k:np.min(v) if 'min' in k else np.max(v) for k, v in self.range_dict.items()}
 
 		# define munk
 		self.munk = Munkres()
@@ -52,7 +54,7 @@ class AutoFormationDetector(object):
 			- list of KL-Divergence
 		"""
 
-		x, y = np.mgrid[self.range_dict['xmin']:self.range_dict['xmax']:.01, self.range_dict['ymin']:self.range_dict['ymax']:.01]
+		x, y = np.mgrid[self.range_dict['xmin']:self.range_dict['xmax']:self.mesh_size, self.range_dict['ymin']:self.range_dict['ymax']:self.mesh_size]
 		pos = np.empty(x.shape + (2,))
 		pos[:, :, 0] = x; pos[:, :, 1] = y
 
@@ -65,7 +67,7 @@ class AutoFormationDetector(object):
 			
 		for i, Pn in enumerate(Pn_list):
 			Vn = entropy(Pn, P)
-			Vn[Vn == np.inf] = 0
+			Vn[Vn == np.inf] = 0; Vn[np.isnan(Vn)] = 0
 			Vn_list.append(Vn)
 		
 		V = np.mean(Vn_list)
@@ -89,7 +91,7 @@ class AutoFormationDetector(object):
 		V_pre = V
 
 		if key:
-			plot_formation_distribution(rv_list, os.path.join(self.fig_dir,key+'_init.png'), self.range_dict)
+			plot_formation_distribution(rv_list, os.path.join(self.fig_dir,key+'_init.png'), self.range_dict, self.mesh_size)
 
 		# optimize algorithm
 		V_list = []
@@ -116,7 +118,7 @@ class AutoFormationDetector(object):
 			V_pre = V; V_list.append(V); rv_list_pre = rv_list
 
 		if key:
-			plot_formation_distribution(rv_list, os.path.join(self.fig_dir, key+'_opt.png'), self.range_dict)
+			plot_formation_distribution(rv_list, os.path.join(self.fig_dir, key+'_opt.png'), self.range_dict, self.mesh_size)
 
 			# save decrease of V each iterations
 			plt.figure(figsize=(5, 3))
@@ -144,7 +146,7 @@ class AutoFormationDetector(object):
 			self.rv_dict = {}
 			for n, (key, data_array) in enumerate(self.data_dict.items()):
 				print(f'optimize -> {key} ({n+1}/{len(self.data_dict)})')
-				rv_list = self.optimize_role_distribution(key, data_array)
+				rv_list = self.optimize_role_distribution(data_array, key)
 
 				# self.kde_dict[key] = kde_list
 				self.rv_dict[key] = rv_list
