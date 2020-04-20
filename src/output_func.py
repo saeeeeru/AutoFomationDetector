@@ -151,7 +151,7 @@ def plot_formation_distribution(rv_list, fpath, range_dict, mesh_size, attacking
 	ax.set_xticklabels([]); ax.set_yticklabels([])
 	ax.set_xticks([]); ax.set_yticks([])
 	ax.spines['right'].set_visible(False); ax.spines['left'].set_visible(False)
-	ax.spines['upper'].set_visible(False); ax.spines['bottom'].set_visible(False)
+	ax.spines['top'].set_visible(False); ax.spines['bottom'].set_visible(False)
 	
 	ax.set_facecolor(twitter_color)
 
