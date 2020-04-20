@@ -103,7 +103,7 @@ def draw_pitch_rot():
 
 	return fig, ax
 
-def plot_formation_distribution(rv_list, fpath, range_dict, mesh_size, atacking_direction):
+def plot_formation_distribution(rv_list, fpath, range_dict, mesh_size, attacking_direction):
 	"""
 	this function to plot formation distribution
 
@@ -141,7 +141,7 @@ def plot_formation_distribution(rv_list, fpath, range_dict, mesh_size, atacking_
 	if not attacking_direction:
 		ax.text(0, -1.35, 'attacking', va='bottom', ha='center', fontsize=15, color='w')
 
-	if atacking_direction == 'right':
+	if attacking_direction == 'right':
 		ax.arrow(x=-0.25,y=-1.4,dx=0.5,dy=0,head_width=0.05,head_length=0.05,length_includes_head=True,color='w')
 		ax.text(0, -1.35, 'attacking', va='bottom', ha='center', fontsize=15, color='w')
 	elif attacking_direction == 'left':

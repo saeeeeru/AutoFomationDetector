@@ -89,10 +89,10 @@ class AutoFormationDetector(object):
 		# initialize gaussian_kde by all time frames
 		rv_list, V, _ = self.compute_entropy(data_array.transpose(1,0,2))
 		V_pre = V
-		atacking_direction = 'left' if 'Home' in key else 'right' if 'Away' in key else None
+		attacking_direction = 'left' if 'Home' in key else 'right' if 'Away' in key else None
 
 		if key:
-			plot_formation_distribution(rv_list, os.path.join(self.fig_dir,key+'_init.png'), self.range_dict, self.mesh_size, atacking_direction)
+			plot_formation_distribution(rv_list, os.path.join(self.fig_dir,key+'_init.png'), self.range_dict, self.mesh_size, atracking_direction)
 
 		# optimize algorithm
 		V_list = []
@@ -119,7 +119,7 @@ class AutoFormationDetector(object):
 			V_pre = V; V_list.append(V); rv_list_pre = rv_list
 
 		if key:
-			plot_formation_distribution(rv_list, os.path.join(self.fig_dir, key+'_opt.png'), self.range_dict, self.mesh_size, atacking_direction)
+			plot_formation_distribution(rv_list, os.path.join(self.fig_dir, key+'_opt.png'), self.range_dict, self.mesh_size, attacking_direction)
 
 			# save decrease of V each iterations
 			plt.figure(figsize=(5, 3))
