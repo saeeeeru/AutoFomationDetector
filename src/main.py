@@ -92,7 +92,7 @@ class AutoFormationDetector(object):
 		attacking_direction = 'left' if 'Home' in key else 'right' if 'Away' in key else None
 
 		if key:
-			plot_formation_distribution(rv_list, os.path.join(self.fig_dir,key+'_init.png'), self.range_dict, self.mesh_size, atracking_direction)
+			plot_formation_distribution(rv_list, os.path.join(self.fig_dir,key+'_init.png'), self.range_dict, self.mesh_size, attacking_direction)
 
 		# optimize algorithm
 		V_list = []
