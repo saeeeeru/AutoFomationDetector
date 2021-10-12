@@ -8,7 +8,7 @@ MarkupSafe==1.1.0
 matplotlib==3.0.2
 munkres==1.0.12
 numpy==1.15.4
-opencv-python==3.4.3.18
+opencv-python==3.4.7.28
 pandas==0.23.4
 progressbar==2.5
 scipy==1.1.0
